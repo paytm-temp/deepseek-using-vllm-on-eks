@@ -39,40 +39,43 @@ terraform init
 terraform apply
 
 # Type 'yes' and press Enter to confirm the deployment.
-
-# After Terraform finishes, configure kubectl with the new EKS cluster
-$(terraform output configure_kubectl | jq -r)
 ```
 
-### Create an EKS Auto Mode NodePool
+### Deploy  DeepSeek Model
 
-For GPU support, we need to create a custom NodePool.
+In this step, we will deploy the **DeepSeek-R1-Distill-Llama-8B** model using vLLM on Amazon EKS. We will walk through deploying the model with the option to enable GPU-based, Neuron-based (Inferentia and Trainium), or both, by configuring the parameters accordingly.
+
+Although you can configure these parameters directly when running `terraform apply` for the first time, we'll break it down into two steps here to provide a clearer understanding of the configuration process.
+
+#### Configuring Node Pools:
+The `enable_auto_mode_node_pool` parameter can be set to `true` to automatically create node pools when using EKS AutoMode. 
+This configuration is defined in the [nodepool_automode.tf](./nodepool_automode.tf) file. If you're using EKS AutoMode, this will ensure that the appropriate node pools are provisioned.
+
+#### Customizing Helm Chart Values:
+
+To customize the values used to host your model using vLLM Helm, check the [helm.tf](./helm.tf) file. 
+This file defines the model to be deployed (**deepseek-ai/DeepSeek-R1-Distill-Llama-8B**) and allows you to pass additional parameters to vLLM. 
+You can modify this file to change resource configurations, node selectors, or tolerations as needed.
 
 ``` bash
-# Create a custom NodePool with GPU support
-kubectl apply -f manifests/gpu-nodepool.yaml
-
-# Check if the NodePool is in 'Ready' state
-kubectl get nodepool/gpu-nodepool
-```
-
-### Deploy  Deepseek Model
-
-
-We’ll deploy the **DeepSeek-R1-Distill-Llama-8B** model using vLLM. To simplify the process, we’ve provided a sed command that allows you to easily set the model name and parameters.
-
-``` bash
-# Use the sed command to replace the placeholder with the model name and configuration parameters
-sed -i "s|__MODEL_NAME_AND_PARAMETERS__|deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048|g" manifests/deepseek-deployment-gpu.yaml
-
-# Deploy the DeepSeek model on Kubernetes
-kubectl apply -f manifests/deepseek-deployment-gpu.yaml
+# Let's start by just enabling the GPU based option:
+terraform apply -var="enable_deep_seek_gpu=true" -var="enable_auto_mode_node_pool=true"
 
 # Check the pods in the 'deepseek' namespace 
 kubectl get po -n deepseek
 ```
 
-Initially, the pod might be in a **Pending state** while EKS Auto Mode provisions the underlying EC2 instances with the required GPU drivers.
+<details>
+  <summary>Click to deploy with Neuron based Instances</summary>
+
+  To deploy with Neuron-based instances, you will first have to build the container image to run vLLM with those instances.
+  
+  ``` bash
+  # TODO: Add steps to build vLLM image for Neuron instances
+  ```
+</details>
+
+Initially, the pod might be in a **Pending state** while EKS Auto Mode provisions the underlying EC2 instances with the required drivers.
 
 ``` bash
 # Wait for the pod to reach the 'Running' state
@@ -81,8 +84,10 @@ kubectl get po -n deepseek --watch
 # Verify that a new Node has been created
 kubectl get nodes -l owner=data-engineer
 
-# Check the logs to confirm that vLLM has started
-kubectl logs deployment.apps/deepseek-deployment -n deepseek
+# Check the logs to confirm that vLLM has started 
+# Select the command based on the accelerator you choose to deploy.
+kubectl logs deployment.apps/deepseek-gpu-vllm-chart -n deepseek
+kubectl logs deployment.apps/deepseek-neuron-vllm-chart -n deepseek
 ```
 
 You should see the log entry **Application startup complete** once the deployment is ready.
@@ -93,9 +98,11 @@ Next, we can create a local proxy to interact with the model using a curl reques
 
 ``` bash
 # Set up a proxy to forward the service port to your local terminal
-kubectl port-forward svc/deepseek-svc -n deepseek 8080:80 > port-forward.log 2>&1 &
+# We are exposing Neuron based on port 8080 and GPU based on port 8081
+kubectl port-forward svc/deepseek-neuron-vllm-chart -n deepseek 8080:80 > port-forward.log 2>&1 &
+kubectl port-forward svc/deepseek-gpu-vllm-chart -n deepseek 8081:80 > port-forward.log 2>&1 &
 
-# Send a curl request to the model
+# Send a curl request to the model (change the port according to the accelerator you are using)
 curl -X POST "http://localhost:8080/v1/chat/completions" -H "Content-Type: application/json" --data '{
  "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
  "messages": [

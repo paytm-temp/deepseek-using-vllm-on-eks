@@ -1,5 +1,5 @@
 resource "helm_release" "deepseek_gpu" {
-  count            = local.enable_deep_seek_gpu ? 1 : 0
+  count            = var.enable_deep_seek_gpu ? 1 : 0
   name             = "deepseek-gpu"
   chart            = "./vllm-chart"
   create_namespace = true
@@ -9,6 +9,7 @@ resource "helm_release" "deepseek_gpu" {
     <<-EOT
     nodeSelector:
       owner: "data-engineer"
+      instanceType: "gpu"
     tolerations:
       - key: "nvidia.com/gpu"
         operator: "Exists"
@@ -28,7 +29,7 @@ resource "helm_release" "deepseek_gpu" {
 }
 
 resource "helm_release" "deepseek_neuron" {
-  count            = local.enable_deep_seek_neuron ? 1 : 0
+  count            = var.enable_deep_seek_neuron ? 1 : 0
   name             = "deepseek-neuron"
   chart            = "./vllm-chart"
   create_namespace = true
@@ -43,8 +44,8 @@ resource "helm_release" "deepseek_neuron" {
       pullPolicy: IfNotPresent
 
     nodeSelector:
-      owner: "data-engineer-neuron"
-
+      owner: "data-engineer"
+      instanceType: "neuron"
     tolerations:
       - key: "aws.amazon.com/neuron"
         operator: "Exists"

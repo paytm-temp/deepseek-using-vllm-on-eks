@@ -1,5 +1,5 @@
 resource "kubernetes_manifest" "gpu_nodepool" {
-  count = local.enable_auto_mode_node_pool && local.enable_deep_seek_gpu ? 1 : 0
+  count = var.enable_auto_mode_node_pool && var.enable_deep_seek_gpu ? 1 : 0
   manifest = {
     apiVersion = "karpenter.sh/v1"
     kind       = "NodePool"
@@ -11,6 +11,7 @@ resource "kubernetes_manifest" "gpu_nodepool" {
         metadata = {
           labels = {
             owner = "data-engineer"
+            instanceType = "gpu"
           }
         }
         spec = {
@@ -54,7 +55,7 @@ resource "kubernetes_manifest" "gpu_nodepool" {
 }
 
 resource "kubernetes_manifest" "neuron_nodepool" {
-  count = local.enable_auto_mode_node_pool && local.enable_deep_seek_neuron ? 1 : 0
+  count = var.enable_auto_mode_node_pool && var.enable_deep_seek_neuron ? 1 : 0
   manifest = {
     apiVersion = "karpenter.sh/v1"
     kind       = "NodePool"
@@ -65,7 +66,8 @@ resource "kubernetes_manifest" "neuron_nodepool" {
       template = {
         metadata = {
           labels = {
-            owner = "data-engineer-neuron"
+            owner = "data-engineer"
+            instanceType = "neuron"
           }
         }
         spec = {

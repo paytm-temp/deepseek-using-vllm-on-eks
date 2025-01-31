@@ -1,13 +1,27 @@
+variable "enable_deep_seek_gpu" {
+  description = "Enable DeepSeek using GPUs"
+  type        = bool
+  default     = false
+}
+
+variable "enable_deep_seek_neuron" {
+  description = "Enable DeepSeek using Neuron"
+  type        = bool
+  default     = false
+}
+
+variable "enable_auto_mode_node_pool" {
+  description = "Enable EKS AutoMode NodePool"
+  type        = bool
+  default     = false
+}
+
 locals {
   region   = "us-east-1"
   vpc_cidr = "10.0.0.0/16"
   name     = "eks-automode"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
-  enable_deep_seek_gpu       = true
-  enable_auto_mode_node_pool = true
-
-  enable_deep_seek_neuron = true
   tags = {
     Blueprint = local.name
   }
