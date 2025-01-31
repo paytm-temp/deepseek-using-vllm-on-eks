@@ -11,20 +11,8 @@ If you'd prefer to deploy the full DeepSeek-R1 model, simply replace the distill
 
 ### Install PreReqs
 
-We’ll use **AWS CloudShell** for the setup in this tutorial to simplify the process.
-
-![cloudshell.png](/static/images/cloudshell.jpg)
-
-``` bash
-# Installing kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# Install Terraform
-sudo yum install -y yum-utils
-sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-sudo yum -y install terraform
-```
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
 ### Create an Amazon  EKS Cluster w/ Auto Mode using Terraform
 We'll use Terraform to easily provision the infrastructure, including a VPC, ECR repository, and an EKS cluster with Auto Mode enabled.
