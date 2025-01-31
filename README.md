@@ -36,9 +36,9 @@ cd deepseek-using-vllm-on-eks
 
 # Apply the Terraform configuration
 terraform init
-terraform apply
+terraform apply -auto-approve
 
-# Type 'yes' and press Enter to confirm the deployment.
+$(terraform output configure_kubectl | jq -r)
 ```
 
 ### Deploy  DeepSeek Model
@@ -58,7 +58,7 @@ You can modify this file to change resource configurations, node selectors, or t
 
 ``` bash
 # Let's start by just enabling the GPU based option:
-terraform apply -var="enable_deep_seek_gpu=true" -var="enable_auto_mode_node_pool=true"
+terraform apply -auto-approve -var="enable_deep_seek_gpu=true" -var="enable_auto_mode_node_pool=true"
 
 # Check the pods in the 'deepseek' namespace 
 kubectl get po -n deepseek
