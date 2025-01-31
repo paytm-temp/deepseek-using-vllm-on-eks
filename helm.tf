@@ -3,6 +3,7 @@ resource "helm_release" "deepseek_gpu" {
   name             = "deepseek-gpu"
   chart            = "./vllm-chart"
   create_namespace = true
+  wait             = false
   namespace        = "deepseek"
 
   values = [
@@ -26,7 +27,6 @@ resource "helm_release" "deepseek_gpu" {
     command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048"
     EOT
   ]
-
   depends_on = [module.eks, kubernetes_manifest.gpu_nodepool]
 }
 
