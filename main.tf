@@ -4,6 +4,10 @@ locals {
   name     = "eks-automode"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
+  enable_deep_seek_gpu       = true
+  enable_auto_mode_node_pool = true
+
+  enable_deep_seek_neuron = true
   tags = {
     Blueprint = local.name
   }
@@ -24,6 +28,20 @@ provider "kubernetes" {
     command     = "aws"
     # This requires the awscli to be installed locally where Terraform is executed
     args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      # This requires the awscli to be installed locally where Terraform is executed
+      args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    }
   }
 }
 
@@ -68,7 +86,7 @@ module "eks" {
 
   cluster_name    = local.name
   cluster_version = "1.31" # Specify the EKS version you want to use
-  
+
   cluster_endpoint_public_access           = true
   enable_irsa                              = true
   enable_cluster_creator_admin_permissions = true
@@ -79,15 +97,20 @@ module "eks" {
   }
 
 
-    vpc_id     = module.vpc.vpc_id
-    subnet_ids = module.vpc.private_subnets
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
 
-    tags = local.tags
-  }
+  tags = local.tags
+}
 
 
 resource "aws_ecr_repository" "deepseek-ecr" {
   name                 = "${local.name}-deepseek-ecr"
+  image_tag_mutability = "MUTABLE"
+}
+
+resource "aws_ecr_repository" "neuron-ecr" {
+  name                 = "${local.name}-neuron-base"
   image_tag_mutability = "MUTABLE"
 }
 
@@ -99,4 +122,8 @@ output "configure_kubectl" {
 
 output "ecr_repository_uri" {
   value = aws_ecr_repository.deepseek-ecr.repository_url
+}
+
+output "ecr_repository_uri_neuron" {
+  value = aws_ecr_repository.neuron-ecr.repository_url
 }
