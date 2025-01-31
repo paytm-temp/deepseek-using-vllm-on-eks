@@ -92,14 +92,9 @@ resource "kubernetes_manifest" "neuron_nodepool" {
               values   = ["inf2"]
             },
             {
-              key      = "eks.amazonaws.com/instance-size"
-              operator = "In"
-              values   = ["8xlarge", "24xlarge", "48xlarge"]
-            },
-            {
               key      = "karpenter.sh/capacity-type"
               operator = "In"
-              values   = ["on-demand"]
+              values   = ["spot", "on-demand"]
             }
           ]
         }

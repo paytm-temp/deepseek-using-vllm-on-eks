@@ -118,8 +118,8 @@ module "eks" {
 }
 
 
-resource "aws_ecr_repository" "deepseek-ecr" {
-  name                 = "${local.name}-deepseek-ecr"
+resource "aws_ecr_repository" "chatbot-ecr" {
+  name                 = "${local.name}-chatbot"
   image_tag_mutability = "MUTABLE"
 }
 
@@ -135,7 +135,7 @@ output "configure_kubectl" {
 }
 
 output "ecr_repository_uri" {
-  value = aws_ecr_repository.deepseek-ecr.repository_url
+  value = aws_ecr_repository.chatbot-ecr.repository_url
 }
 
 output "ecr_repository_uri_neuron" {

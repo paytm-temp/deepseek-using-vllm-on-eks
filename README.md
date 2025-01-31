@@ -9,22 +9,11 @@ While it requires fewer resources (like GPU) compared to the full [***DeepSeek-R
 
 If you'd prefer to deploy the full DeepSeek-R1 model, simply replace the distilled model in the vLLM configuration.
 
-### Install PreReqs
+###  PreReqs
 
-We’ll use **AWS CloudShell** for the setup in this tutorial to simplify the process.
-
-![cloudshell.png](/static/images/cloudshell.jpg)
-
-``` bash
-# Installing kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# Install Terraform
-sudo yum install -y yum-utils
-sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-sudo yum -y install terraform
-```
+- [Check AWS Instance Quota](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-quotas.html)
+- [Install kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Install terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
 ### Create an Amazon  EKS Cluster w/ Auto Mode using Terraform
 We'll use Terraform to easily provision the infrastructure, including a VPC, ECR repository, and an EKS cluster with Auto Mode enabled.
@@ -36,30 +25,29 @@ cd deepseek-using-vllm-on-eks
 
 # Apply the Terraform configuration
 terraform init
-terraform apply
+terraform apply -auto-approve
 
-# Type 'yes' and press Enter to confirm the deployment.
+$(terraform output configure_kubectl | jq -r)
 ```
 
 ### Deploy  DeepSeek Model
 
-In this step, we will deploy the **DeepSeek-R1-Distill-Llama-8B** model using vLLM on Amazon EKS. We will walk through deploying the model with the option to enable GPU-based, Neuron-based (Inferentia and Trainium), or both, by configuring the parameters accordingly.
+In this step, we will deploy the **DeepSeek-R1-Distill-Llama-8B** model using vLLM on Amazon EKS. 
+We will walk through deploying the model with the option to enable GPU-based, Neuron-based (Inferentia and Trainium), 
+or both, by configuring the parameters accordingly.
 
-Although you can configure these parameters directly when running `terraform apply` for the first time, we'll break it down into two steps here to provide a clearer understanding of the configuration process.
-
-#### Configuring Node Pools:
+#### Configuring Node Pools
 The `enable_auto_mode_node_pool` parameter can be set to `true` to automatically create node pools when using EKS AutoMode. 
 This configuration is defined in the [nodepool_automode.tf](./nodepool_automode.tf) file. If you're using EKS AutoMode, this will ensure that the appropriate node pools are provisioned.
 
-#### Customizing Helm Chart Values:
-
+#### Customizing Helm Chart Values
 To customize the values used to host your model using vLLM, check the [helm.tf](./helm.tf) file. 
 This file defines the model to be deployed (**deepseek-ai/DeepSeek-R1-Distill-Llama-8B**) and allows you to pass additional parameters to vLLM. 
 You can modify this file to change resource configurations, node selectors, or tolerations as needed.
 
 ``` bash
 # Let's start by just enabling the GPU based option:
-terraform apply -var="enable_deep_seek_gpu=true" -var="enable_auto_mode_node_pool=true"
+terraform apply -auto-approve -var="enable_deep_seek_gpu=true" -var="enable_auto_mode_node_pool=true"
 
 # Check the pods in the 'deepseek' namespace 
 kubectl get po -n deepseek
@@ -67,6 +55,7 @@ kubectl get po -n deepseek
 
 <details>
   <summary>Click to deploy with Neuron based Instances</summary>
+
 
   To deploy with Neuron-based instances, you will first have to build the container image to run vLLM with those instances.
   
@@ -93,7 +82,7 @@ kubectl get po -n deepseek
   rm -rf vllm
 
   # Enable additional nodepool and deploy vLLM DeepSeek model
-  terraform apply -var="enable_deep_seek_gpu=true" -var="enable_deep_seek_neuron=true" -var="enable_auto_mode_node_pool=true"
+  terraform apply -auto-approve -var="enable_deep_seek_gpu=true" -var="enable_deep_seek_neuron=true" -var="enable_auto_mode_node_pool=true"
   ```
 </details>
 
