@@ -71,7 +71,29 @@ kubectl get po -n deepseek
   To deploy with Neuron-based instances, you will first have to build the container image to run vLLM with those instances.
   
   ``` bash
-  # TODO: Add steps to build vLLM image for Neuron instances
+  # Before Adding Neuron support we need to build the image for the vllm deepseek neuron based deployment.
+  # Let's start by cloning the official vLLM repo and using its official Docker image with the neuron drivers installed
+  git clone https://github.com/vllm-project/vllm
+  cd vllm
+
+  # Getting ECR repo name
+  export ECR_REPO_NEURON=$(terraform output ecr_repository_uri_neuron | jq -r)
+
+  # Building image
+  docker build -f Dockerfile.neuron -t $ECR_REPO_NEURON:0.1 .
+
+  # Login on ECR repository
+  aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REPO_NEURON
+
+  # Pushing the image
+  docker push $ECR_REPO_NEURON:0.1
+
+  # Remove vllm repo
+  cd ..
+  rm -rf vllm
+
+  # Enable additional nodepool and deploy vLLM DeepSeek model
+  terraform apply -var="enable_deep_seek_gpu=true" -var="enable_deep_seek_neuron=true" -var="enable_auto_mode_node_pool=true"
   ```
 </details>
 
