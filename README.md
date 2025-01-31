@@ -93,7 +93,7 @@ kubectl get po -n deepseek
   rm -rf vllm
 
   # Enable additional nodepool and deploy vLLM DeepSeek model
-  terraform apply -var="enable_deep_seek_gpu=true" -var="enable_deep_seek_neuron=true" -var="enable_auto_mode_node_pool=true"
+  terraform apply -auto-approve -var="enable_deep_seek_gpu=true" -var="enable_deep_seek_neuron=true" -var="enable_auto_mode_node_pool=true"
   ```
 </details>
 
