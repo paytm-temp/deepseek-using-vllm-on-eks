@@ -52,6 +52,8 @@ resource "kubernetes_manifest" "gpu_nodepool" {
       }
     }
   }
+
+  depends_on = [module.eks]
 }
 
 resource "kubernetes_manifest" "neuron_nodepool" {
@@ -108,4 +110,6 @@ resource "kubernetes_manifest" "neuron_nodepool" {
       }
     }
   }
+
+  depends_on = [module.eks]
 }

@@ -26,6 +26,8 @@ resource "helm_release" "deepseek_gpu" {
     command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048"
     EOT
   ]
+
+  depends_on = [module.eks, kubernetes_manifest.gpu_nodepool]
 }
 
 resource "helm_release" "deepseek_neuron" {
@@ -39,8 +41,8 @@ resource "helm_release" "deepseek_neuron" {
   values = [
     <<-EOT
     image:
-      repository: 936068047509.dkr.ecr.us-east-1.amazonaws.com/neuron-image-vllm
-      tag: latest
+      repository: ${aws_ecr_repository.neuron-ecr.repository_url}
+      tag: 0.1
       pullPolicy: IfNotPresent
 
     nodeSelector:
@@ -86,4 +88,5 @@ resource "helm_release" "deepseek_neuron" {
       periodSeconds: 5
     EOT
   ]
+  depends_on = [module.eks, kubernetes_manifest.neuron_nodepool]
 }
