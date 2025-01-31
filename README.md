@@ -43,16 +43,15 @@ terraform apply
 
 ### Deploy  DeepSeek Model
 
-In this step, we will deploy the **DeepSeek-R1-Distill-Llama-8B** model using vLLM on Amazon EKS. We will walk through deploying the model with the option to enable GPU-based, Neuron-based (Inferentia and Trainium), or both, by configuring the parameters accordingly.
+In this step, we will deploy the **DeepSeek-R1-Distill-Llama-8B** model using vLLM on Amazon EKS. 
+We will walk through deploying the model with the option to enable GPU-based, Neuron-based (Inferentia and Trainium), 
+or both, by configuring the parameters accordingly.
 
-Although you can configure these parameters directly when running `terraform apply` for the first time, we'll break it down into two steps here to provide a clearer understanding of the configuration process.
-
-#### Configuring Node Pools:
+#### Configuring Node Pools
 The `enable_auto_mode_node_pool` parameter can be set to `true` to automatically create node pools when using EKS AutoMode. 
 This configuration is defined in the [nodepool_automode.tf](./nodepool_automode.tf) file. If you're using EKS AutoMode, this will ensure that the appropriate node pools are provisioned.
 
-#### Customizing Helm Chart Values:
-
+#### Customizing Helm Chart Values
 To customize the values used to host your model using vLLM, check the [helm.tf](./helm.tf) file. 
 This file defines the model to be deployed (**deepseek-ai/DeepSeek-R1-Distill-Llama-8B**) and allows you to pass additional parameters to vLLM. 
 You can modify this file to change resource configurations, node selectors, or tolerations as needed.
@@ -67,6 +66,7 @@ kubectl get po -n deepseek
 
 <details>
   <summary>Click to deploy with Neuron based Instances</summary>
+
 
   To deploy with Neuron-based instances, you will first have to build the container image to run vLLM with those instances.
   
