@@ -99,7 +99,7 @@ resource "kubernetes_manifest" "neuron_nodepool" {
             {
               key      = "karpenter.sh/capacity-type"
               operator = "In"
-              values   = ["on-demand"]
+              values   = ["spot", "on-demand"]
             }
           ]
         }
