@@ -9,10 +9,11 @@ While it requires fewer resources (like GPU) compared to the full [***DeepSeek-R
 
 If you'd prefer to deploy the full DeepSeek-R1 model, simply replace the distilled model in the vLLM configuration.
 
-### Install PreReqs
+###  PreReqs
 
-- [kubectl](https://kubernetes.io/docs/tasks/tools/)
-- [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+- [Check AWS Instance Quota](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-quotas.html)
+- [Install kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Install terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
 ### Create an Amazon  EKS Cluster w/ Auto Mode using Terraform
 We'll use Terraform to easily provision the infrastructure, including a VPC, ECR repository, and an EKS cluster with Auto Mode enabled.
