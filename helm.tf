@@ -4,6 +4,7 @@ resource "helm_release" "deepseek_gpu" {
   chart            = "./vllm-chart"
   create_namespace = true
   wait             = false
+  replace          = true
   namespace        = "deepseek"
 
   values = [
@@ -36,6 +37,7 @@ resource "helm_release" "deepseek_neuron" {
   chart            = "./vllm-chart"
   create_namespace = true
   wait             = false
+  replace          = true
   namespace        = "deepseek"
 
   values = [
