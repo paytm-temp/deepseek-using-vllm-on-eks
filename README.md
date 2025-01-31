@@ -53,7 +53,7 @@ This configuration is defined in the [nodepool_automode.tf](./nodepool_automode.
 
 #### Customizing Helm Chart Values:
 
-To customize the values used to host your model using vLLM Helm, check the [helm.tf](./helm.tf) file. 
+To customize the values used to host your model using vLLM, check the [helm.tf](./helm.tf) file. 
 This file defines the model to be deployed (**deepseek-ai/DeepSeek-R1-Distill-Llama-8B**) and allows you to pass additional parameters to vLLM. 
 You can modify this file to change resource configurations, node selectors, or tolerations as needed.
 
