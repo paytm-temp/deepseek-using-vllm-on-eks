@@ -14,6 +14,7 @@ If you'd prefer to deploy the full DeepSeek-R1 model, simply replace the distill
 - [Check AWS Instance Quota](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-quotas.html)
 - [Install kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [Install terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+- [Install finch](https://runfinch.com/docs/getting-started/installation/) or [docker](https://docs.docker.com/get-started/get-docker/) 
 
 ### Create an Amazon  EKS Cluster w/ Auto Mode using Terraform
 We'll use Terraform to easily provision the infrastructure, including a VPC, ECR repository, and an EKS cluster with Auto Mode enabled.
@@ -56,12 +57,9 @@ kubectl get po -n deepseek
 <details>
   <summary>Click to deploy with Neuron based Instances</summary>
 
-
-  To deploy with Neuron-based instances, you will first have to build the container image to run vLLM with those instances.
-  
   ``` bash
   # Before Adding Neuron support we need to build the image for the vllm deepseek neuron based deployment.
-  # Let's start by cloning the official vLLM repo and using its official Docker image with the neuron drivers installed
+  # Let's start by cloning the official vLLM repo and using its official container image with the neuron drivers installed
   git clone https://github.com/vllm-project/vllm
   cd vllm
 
@@ -69,17 +67,18 @@ kubectl get po -n deepseek
   export ECR_REPO_NEURON=$(terraform output ecr_repository_uri_neuron | jq -r)
 
   # Building image
-  docker build -f Dockerfile.neuron -t $ECR_REPO_NEURON:0.1 .
+  finch build --platform linux/amd64 -f Dockerfile.neuron -t $ECR_REPO_NEURON:0.1 .
 
   # Login on ECR repository
-  aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REPO_NEURON
+  aws ecr get-login-password | finch login --username AWS --password-stdin $ECR_REPO_NEURON
 
   # Pushing the image
-  docker push $ECR_REPO_NEURON:0.1
+  finch push $ECR_REPO_NEURON:0.1
 
-  # Remove vllm repo
+  # Remove vllm repo and container image from local machine
   cd ..
   rm -rf vllm
+  finch rmi $ECR_REPO_NEURON:0.1
 
   # Enable additional nodepool and deploy vLLM DeepSeek model
   terraform apply -auto-approve -var="enable_deep_seek_gpu=true" -var="enable_deep_seek_neuron=true" -var="enable_auto_mode_node_pool=true"
@@ -87,6 +86,22 @@ kubectl get po -n deepseek
 </details>
 
 Initially, the pod might be in a **Pending state** while EKS Auto Mode provisions the underlying EC2 instances with the required drivers.
+
+<details>
+  <summary>Click if your pod is stuck in a "pending" state for several minutes</summary>
+   
+  ``` bash
+  # Check if the node was provisioned
+  kubectl get nodes -l owner=data-engineer
+  ```
+  If no nodes are displayed, verify that your AWS account has sufficient service quota to launch the required instances.
+  Check the quota limits for G, P, or Inf instances (e.g., GPU or Neuron based instances).
+  
+  For more information, refer to the [AWS EC2 Instance Quotas documentation](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-quotas.html).
+
+  **Note:** Those quotas are based on vCPUs, not the number of instances, so be sure to request accordingly.
+
+</details>
 
 ``` bash
 # Wait for the pod to reach the 'Running' state
@@ -136,11 +151,11 @@ While direct API requests work fine, let’s build a more user-friendly Chatbot 
 export ECR_REPO=$(terraform output ecr_repository_uri | jq -r)
 
 # Build the container image for the Chatbot UI
-docker build -t $ECR_REPO:0.1 chatbot-ui/application/.
+finch build --platform linux/amd64 -t $ECR_REPO:0.1 chatbot-ui/application/.
 
 # Login to ECR and push the image
-aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REPO
-docker push $ECR_REPO:0.1
+aws ecr get-login-password | finch login --username AWS --password-stdin $ECR_REPO
+finch push $ECR_REPO:0.1
 
 # Update the deployment manifest to use the image
 sed -i "s#__IMAGE_DEEPSEEK_CHATBOT__#$ECR_REPO:0.1#g" chatbot-ui/manifests/deployment.yaml
