@@ -56,9 +56,6 @@ kubectl get po -n deepseek
 <details>
   <summary>Click to deploy with Neuron based Instances</summary>
 
-
-  To deploy with Neuron-based instances, you will first have to build the container image to run vLLM with those instances.
-  
   ``` bash
   # Before Adding Neuron support we need to build the image for the vllm deepseek neuron based deployment.
   # Let's start by cloning the official vLLM repo and using its official Docker image with the neuron drivers installed
@@ -87,6 +84,22 @@ kubectl get po -n deepseek
 </details>
 
 Initially, the pod might be in a **Pending state** while EKS Auto Mode provisions the underlying EC2 instances with the required drivers.
+
+<details>
+  <summary>Click if your pod is stuck in a "pending" state for several minutes</summary>
+   
+  ``` bash
+  # Check if the node was provisioned
+  kubectl get nodes -l owner=data-engineer
+  ```
+  If the node is **not** being provisioned, ensure that your AWS account has enough service quota to launch the necessary instances. 
+  Check the quota limits for G, P, or Inf instances (e.g., GPU or Neuron instances).
+  
+  For more information, refer to the [AWS EC2 Instance Quotas documentation](https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-instance-quotas.html).
+
+  **Note:** Those quotas are based on vCPUs, not the number of instances, so be sure to request accordingly.
+
+</details>
 
 ``` bash
 # Wait for the pod to reach the 'Running' state
