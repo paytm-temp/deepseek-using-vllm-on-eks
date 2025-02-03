@@ -31,8 +31,8 @@ spec:
             secretKeyRef:
               name: deepseek-chatbot-secrets
               key: admin-password
-        - name: MODEL_BASE_URL
-          value: "http://deepseek-svc"
+        - name: MODEL_URLS
+          value: '["http://deepseek-neuron-vllm-chart", "http://deepseek-gpu-vllm-chart"]'
         resources:
           requests:
             cpu: "250m"
