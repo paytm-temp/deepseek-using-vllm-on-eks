@@ -63,7 +63,7 @@ resource "helm_release" "deepseek_neuron" {
       - name: NEURON_RT_VISIBLE_CORES
         value: "0,1"
       - name: VLLM_LOGGING_LEVEL
-        value: "DEBUG"
+        value: "INFO"
 
     resources:
       limits:

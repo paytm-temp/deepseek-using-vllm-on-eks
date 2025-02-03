@@ -108,7 +108,7 @@ Initially, the pod might be in a **Pending state** while EKS Auto Mode provision
 kubectl get po -n deepseek --watch
 
 # Verify that a new Node has been created
-kubectl get nodes -l owner=data-engineer
+kubectl get nodes -l owner=data-engineer -o wide
 
 # Check the logs to confirm that vLLM has started 
 # Select the command based on the accelerator you choose to deploy.
@@ -140,7 +140,7 @@ curl -X POST "http://localhost:8080/v1/chat/completions" -H "Content-Type: appli
  }'
 ```
 The response may take a few seconds to build, depending on the complexity of the model’s output. 
-You can monitor the progress via the **deepseek-deployment** logs.
+You can monitor the progress via the `deepseek-gpu-vllm-chart` or `deepseek-neuron-vllm-chart` deployment logs.
 
 ### Build a Chatbot UI for the Model
 
