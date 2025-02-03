@@ -177,9 +177,9 @@ To access the Chatbot UI, you'll need the username and password stored in a Kube
 echo -e "Username=$(kubectl get secret deepseek-chatbot-secrets -n deepseek -o jsonpath='{.data.admin-username}' | base64 --decode)\nPassword=$(kubectl get secret deepseek-chatbot-secrets -n deepseek -o jsonpath='{.data.admin-password}' | base64 --decode)"
 ```
 After logging in, you'll see a new **Chatbot tab** where you can interact with the model!
+In this tab, you'll notice a dropdown menu that lets you switch between Neuron-based and GPU-based deployments!
 
-![chatbot-ui.png](/static/images/chatbot.jpg)
-
+[chatbot-ui](/static/images/chatbot.jpg)
 
 ---
 ### Disclaimer
