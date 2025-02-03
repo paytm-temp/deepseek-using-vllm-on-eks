@@ -1,20 +1,22 @@
 import gradio as gr
 import requests
-import json
 import os
 import re
-
-MODEL_BASE_URL = os.getenv("MODEL_BASE_URL", "http://localhost:8080")
 
 # Get credentials from environment variables
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "password")
 
+# List of possible model base URLs
+MODEL_URLS = ["http://localhost", "http://localhost"]
+
+
 def authenticate(username, password):
     return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
 
-def query_model(question):
-    url = f"{MODEL_BASE_URL}/v1/chat/completions"
+
+def query_model(question, model_base_url):
+    url = f"{model_base_url}/v1/chat/completions"
     headers = {"Content-Type": "application/json"}
     data = {
         "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
@@ -27,7 +29,7 @@ def query_model(question):
     }
 
     response = requests.post(url, headers=headers, json=data)
-    
+
     if response.status_code == 200:
         result = response.json()
         content = result['choices'][0]['message']['content']
@@ -37,15 +39,17 @@ def query_model(question):
     else:
         return f"Error: {response.status_code} - {response.text}"
 
-def chatbot(message, history):
-    response = query_model(message)
+
+def chatbot(message, history, model_base_url):
+    response = query_model(message, model_base_url)
     history.append((message, response))
     return history
+
 
 def create_demo():
     with gr.Blocks() as demo:
         gr.Markdown("# DeepSeek AI Chatbot")
-        
+
         with gr.Tab("Login"):
             username = gr.Textbox(label="Username")
             password = gr.Textbox(label="Password", type="password")
@@ -53,6 +57,12 @@ def create_demo():
             login_message = gr.Markdown(visible=False)
 
         with gr.Tab("Chatbot", visible=False) as chatbot_tab:
+            # Dropdown for selecting model base URL
+            model_base_url_dropdown = gr.Dropdown(
+                choices=MODEL_URLS,
+                label="Select Model Base URL",
+                value=MODEL_URLS[0]  # Default to the first URL
+            )
             chatbot = gr.Chatbot(height=300)
             msg = gr.Textbox(placeholder="Type your message here...", label="User Input")
             clear = gr.Button("Clear")
@@ -60,14 +70,14 @@ def create_demo():
             def user(user_message, history):
                 return "", history + [[user_message, None]]
 
-            def bot(history):
+            def bot(history, model_base_url):
                 user_message = history[-1][0]
-                bot_message = query_model(user_message)
+                bot_message = query_model(user_message, model_base_url)
                 history[-1][1] = bot_message
                 return history
 
-            msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
-                bot, chatbot, chatbot
+            msg.submit(user, [msg, chatbot, model_base_url_dropdown], [msg, chatbot], queue=False).then(
+                bot, [chatbot, model_base_url_dropdown], chatbot
             )
             clear.click(lambda: None, None, chatbot, queue=False)
 
