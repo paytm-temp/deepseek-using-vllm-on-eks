@@ -8,7 +8,7 @@ ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "password")
 
 # List of possible model base URLs
-MODEL_URLS = ["http://localhost", "http://localhost"]
+MODEL_URLS = os.getenv("MODEL_URLS", ["http://localhost", "http://localhost"])
 
 
 def authenticate(username, password):
