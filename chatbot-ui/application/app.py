@@ -2,13 +2,14 @@ import gradio as gr
 import requests
 import os
 import re
+import json
 
 # Get credentials from environment variables
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "password")
 
 # List of possible model base URLs
-MODEL_URLS = os.getenv("MODEL_URLS", ["http://localhost", "http://localhost"])
+MODEL_URLS = json.loads(os.getenv("MODEL_URLS", "http://localhost"))
 
 
 def authenticate(username, password):
@@ -57,7 +58,6 @@ def create_demo():
             login_message = gr.Markdown(visible=False)
 
         with gr.Tab("Chatbot", visible=False) as chatbot_tab:
-            # Dropdown for selecting model base URL
             model_base_url_dropdown = gr.Dropdown(
                 choices=MODEL_URLS,
                 label="Select Model Base URL",
@@ -67,10 +67,12 @@ def create_demo():
             msg = gr.Textbox(placeholder="Type your message here...", label="User Input")
             clear = gr.Button("Clear")
 
-            def user(user_message, history):
+            def user(user_message, history, model_base_url):
                 return "", history + [[user_message, None]]
 
             def bot(history, model_base_url):
+                if not history:  # Check if history is empty
+                    return history
                 user_message = history[-1][0]
                 bot_message = query_model(user_message, model_base_url)
                 history[-1][1] = bot_message
