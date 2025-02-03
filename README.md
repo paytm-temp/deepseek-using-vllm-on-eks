@@ -179,7 +179,7 @@ echo -e "Username=$(kubectl get secret deepseek-chatbot-secrets -n deepseek -o j
 After logging in, you'll see a new **Chatbot tab** where you can interact with the model!
 In this tab, you'll notice a dropdown menu that lets you switch between Neuron-based and GPU-based deployments!
 
-[chatbot-ui](/static/images/chatbot.jpg)
+![chatbot-ui](/static/images/chatbot.jpg)
 
 ---
 ### Disclaimer
