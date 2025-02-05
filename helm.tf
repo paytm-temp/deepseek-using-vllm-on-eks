@@ -55,7 +55,7 @@ resource "helm_release" "deepseek_neuron" {
         operator: "Exists"
         effect: "NoSchedule"
 
-    command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --device neuron --tensor-parallel-size 2 --max-num-seqs 4 --block-size 8 --use-v2-block-manager --max-model-len 4096"
+    command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --device neuron --tensor-parallel-size 2 --max-num-seqs 4 --block-size 8 --use-v2-block-manager --max-model-len 2048"
 
     env:
       - name: NEURON_RT_NUM_CORES
