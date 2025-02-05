@@ -125,8 +125,8 @@ Next, we can create a local proxy to interact with the model using a curl reques
 ``` bash
 # Set up a proxy to forward the service port to your local terminal
 # We are exposing Neuron based on port 8080 and GPU based on port 8081
-kubectl port-forward svc/deepseek-neuron-vllm-chart -n deepseek 8080:80 > port-forward.log 2>&1 &
-kubectl port-forward svc/deepseek-gpu-vllm-chart -n deepseek 8081:80 > port-forward.log 2>&1 &
+kubectl port-forward svc/deepseek-neuron-vllm-chart -n deepseek 8080:80 > port-forward-neuron.log 2>&1 &
+kubectl port-forward svc/deepseek-gpu-vllm-chart -n deepseek 8081:80 > port-forward-gpu.log 2>&1 &
 
 # Send a curl request to the model (change the port according to the accelerator you are using)
 curl -X POST "http://localhost:8080/v1/chat/completions" -H "Content-Type: application/json" --data '{
