@@ -1,7 +1,7 @@
 variable "enable_deep_seek_gpu" {
   description = "Enable DeepSeek using GPUs"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_deep_seek_neuron" {
@@ -13,7 +13,7 @@ variable "enable_deep_seek_neuron" {
 variable "enable_auto_mode_node_pool" {
   description = "Enable EKS AutoMode NodePool"
   type        = bool
-  default     = true
+  default     = false
 }
 
 locals {
