@@ -1,7 +1,7 @@
 variable "enable_deep_seek_gpu" {
   description = "Enable DeepSeek using GPUs"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_deep_seek_neuron" {
@@ -13,11 +13,11 @@ variable "enable_deep_seek_neuron" {
 variable "enable_auto_mode_node_pool" {
   description = "Enable EKS AutoMode NodePool"
   type        = bool
-  default     = false
+  default     = true
 }
 
 locals {
-  region   = "us-east-1"
+  region   = "ap-south-1"
   vpc_cidr = "10.0.0.0/16"
   name     = "eks-automode"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
