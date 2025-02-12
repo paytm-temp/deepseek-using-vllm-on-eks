@@ -2,20 +2,27 @@ resource "helm_release" "deepseek_gpu" {
   count            = var.enable_deep_seek_gpu ? 1 : 0
   name             = "deepseek-gpu"
   chart            = "./vllm-chart"
-  create_namespace = true
-  wait             = false
-  replace          = true
   namespace        = "deepseek"
+  create_namespace = true
 
   values = [
     <<-EOT
+    useCombined: true
+    
+    image:
+      repository: ${aws_ecr_repository.chatbot-ecr.repository_url}
+      tag: latest
+      pullPolicy: Always
+
     nodeSelector:
       owner: "data-engineer"
       instanceType: "gpu"
+    
     tolerations:
       - key: "nvidia.com/gpu"
         operator: "Exists"
         effect: "NoSchedule"
+
     resources:
       limits:
         cpu: "32"
@@ -25,10 +32,16 @@ resource "helm_release" "deepseek_gpu" {
         cpu: "16"
         memory: 30G
         nvidia.com/gpu: "1"
-    command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048"
+
+    env:
+      - name: VLLM_MODEL
+        value: "deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
+      - name: VLLM_PORT
+        value: "8000"
+      - name: LITELLM_PORT
+        value: "8080"
     EOT
   ]
-  depends_on = [module.eks, kubernetes_manifest.gpu_nodepool]
 }
 
 resource "helm_release" "deepseek_neuron" {

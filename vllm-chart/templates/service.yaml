@@ -8,9 +8,16 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - name: http
+    {{- if .Values.useCombined }}
+    - name: vllm
+      port: 8000
+      targetPort: vllm
+    - name: litellm
+      port: 8080
+      targetPort: litellm
+    {{- end }}
+    - name: ui
       port: {{ .Values.service.port }}
-      protocol: TCP
-      targetPort: {{ .Values.service.targetPort }}
+      targetPort: ui
   selector:
     {{- include "vllm-chart.selectorLabels" . | nindent 4 }}

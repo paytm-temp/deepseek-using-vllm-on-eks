@@ -13,7 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "vllm-chart.labels" . | nindent 8 }}
+        {{- include "vllm-chart.selectorLabels" . | nindent 8 }}
     spec:
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
@@ -35,12 +35,21 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - {{ .Values.command }}
-          {{- if .Values.env }}
-          env:
-            {{- toYaml .Values.env | nindent 12 }}
-          {{- end }}
+          {{- if .Values.useCombined }}
           ports:
-            - containerPort: {{ .Values.containerPort }}
+            - name: vllm
+              containerPort: 8000
+            - name: litellm
+              containerPort: 8080
+          {{- end }}
+            - name: ui
+              containerPort: 7860
+          env:
+            - name: USE_COMBINED
+              value: {{ .Values.useCombined | quote }}
+            {{- if .Values.env }}
+            {{- toYaml .Values.env | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
