@@ -39,8 +39,6 @@ spec:
           ports:
             - name: vllm
               containerPort: 8000
-            - name: litellm
-              containerPort: 8080
           {{- end }}
             - name: ui
               containerPort: 7860

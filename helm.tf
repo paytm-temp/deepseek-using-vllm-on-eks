@@ -12,7 +12,8 @@ resource "helm_release" "deepseek_gpu" {
       tag: latest
       pullPolicy: Always
 
-    command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048"
+    command: |
+      vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048
 
     nodeSelector:
       owner: "data-engineer"
