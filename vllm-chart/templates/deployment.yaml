@@ -32,14 +32,13 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh", "-c"]
-          args:
-            - {{ .Values.command }}
-          {{- if .Values.useCombined }}
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "{{ .Values.command }}"
           ports:
             - name: vllm
               containerPort: 8000
-          {{- end }}
             - name: ui
               containerPort: 7860
           env:

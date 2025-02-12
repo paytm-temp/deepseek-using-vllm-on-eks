@@ -29,7 +29,8 @@ resource "helm_release" "deepseek_gpu" {
         memory: 30G
         nvidia.com/gpu: "1"
 
-    command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048"
+    command: |
+      vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048
     EOT
   ]
   depends_on = [module.eks, kubernetes_manifest.gpu_nodepool]
