@@ -7,12 +7,12 @@ resource "helm_release" "deepseek_gpu" {
 
   values = [
     <<-EOT
-    useCombined: true
-    
     image:
       repository: ${aws_ecr_repository.chatbot-ecr.repository_url}
       tag: latest
       pullPolicy: Always
+
+    command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048"
 
     nodeSelector:
       owner: "data-engineer"
@@ -38,8 +38,6 @@ resource "helm_release" "deepseek_gpu" {
         value: "deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
       - name: VLLM_PORT
         value: "8000"
-      - name: LITELLM_PORT
-        value: "8080"
     EOT
   ]
 }
