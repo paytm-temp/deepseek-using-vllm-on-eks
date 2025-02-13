@@ -155,13 +155,6 @@ module "eks" {
   tags = local.tags
 }
 
-# Add this after the eks module
-resource "time_sleep" "wait_for_kubernetes" {
-  depends_on = [module.eks]
-
-  create_duration = "20s"
-}
-
 # Add this after time_sleep
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_name
@@ -181,14 +174,19 @@ data "aws_eks_cluster_auth" "cluster" {
   ]
 }
 
-# Add after the time_sleep resource
 data "http" "wait_for_cluster" {
   url = module.eks.cluster_endpoint
 
   depends_on = [
-    module.eks,
-    time_sleep.wait_for_kubernetes
+    data.aws_eks_cluster.cluster
   ]
+}
+
+# Add this after the eks module
+resource "time_sleep" "wait_for_kubernetes" {
+  depends_on = [module.eks]
+
+  create_duration = "20s"
 }
 
 resource "aws_ecr_repository" "chatbot-ecr" {
