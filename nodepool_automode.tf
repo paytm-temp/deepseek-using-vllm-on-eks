@@ -79,7 +79,6 @@ resource "kubernetes_manifest" "neuron_nodepool" {
 
   depends_on = [
     module.eks,
-    time_sleep.wait_for_kubernetes,
     data.aws_eks_cluster.cluster,
     data.aws_eks_cluster_auth.cluster,
     helm_release.karpenter,
