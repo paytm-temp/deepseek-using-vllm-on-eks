@@ -7,13 +7,6 @@ resource "kubernetes_manifest" "gpu_nodepool" {
       name = "gpu-nodepool"
     }
     spec = {
-      disruption = {
-        consolidationPolicy = "WhenEmpty"
-        consolidateAfter = "30s"
-      }
-      weight = 1
-      minReplicas = 2    # Minimum 2 nodes
-      maxReplicas = 2    # Maximum 2 nodes
       template = {
         metadata = {
           labels = {
@@ -22,6 +15,11 @@ resource "kubernetes_manifest" "gpu_nodepool" {
           }
         }
         spec = {
+          # Control scaling through provisioner
+          provisioner = {
+            minReplicas = 2
+            maxReplicas = 2
+          }
           nodeClassRef = {
             group = "eks.amazonaws.com"
             kind  = "NodeClass"
