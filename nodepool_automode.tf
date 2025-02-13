@@ -1,5 +1,13 @@
 resource "kubernetes_manifest" "gpu_nodepool" {
   count = var.enable_auto_mode_node_pool && var.enable_deep_seek_gpu ? 1 : 0
+
+  depends_on = [
+    module.eks,
+    time_sleep.wait_for_kubernetes,
+    data.aws_eks_cluster.cluster,
+    data.aws_eks_cluster_auth.cluster
+  ]
+
   manifest = {
     apiVersion = "karpenter.sh/v1"
     kind       = "NodePool"
@@ -62,12 +70,18 @@ resource "kubernetes_manifest" "gpu_nodepool" {
       }
     }
   }
-
-  depends_on = [module.eks]
 }
 
 resource "kubernetes_manifest" "neuron_nodepool" {
   count = var.enable_auto_mode_node_pool && var.enable_deep_seek_neuron ? 1 : 0
+
+  depends_on = [
+    module.eks,
+    time_sleep.wait_for_kubernetes,
+    data.aws_eks_cluster.cluster,
+    data.aws_eks_cluster_auth.cluster
+  ]
+
   manifest = {
     apiVersion = "karpenter.sh/v1"
     kind       = "NodePool"
@@ -115,6 +129,4 @@ resource "kubernetes_manifest" "neuron_nodepool" {
       }
     }
   }
-
-  depends_on = [module.eks]
 }

@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.9.1"
+    }
+  }
+}
+
 variable "enable_deep_seek_gpu" {
   description = "Enable DeepSeek using GPUs"
   type        = bool
@@ -33,20 +46,14 @@ provider "aws" {
   region = local.region # Change to your desired region
 }
 
-# Add this data source to get EKS cluster auth
-data "aws_eks_cluster_auth" "this" {
-  name = module.eks.cluster_name
-}
-
 provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.this.token
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
 
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    # This requires the awscli to be installed locally where Terraform is executed
     args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
   }
   ignore_annotations = [
@@ -139,6 +146,31 @@ module "eks" {
   tags = local.tags
 }
 
+# Add this after the eks module
+resource "time_sleep" "wait_for_kubernetes" {
+  depends_on = [module.eks]
+
+  create_duration = "20s"
+}
+
+# Add this after time_sleep
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_name
+
+  depends_on = [
+    module.eks,
+    time_sleep.wait_for_kubernetes
+  ]
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_name
+
+  depends_on = [
+    module.eks,
+    time_sleep.wait_for_kubernetes
+  ]
+}
 
 resource "aws_ecr_repository" "chatbot-ecr" {
   name                 = "${local.name}-chatbot"
