@@ -115,11 +115,23 @@ module "eks" {
 
   # Add managed node group for Karpenter
   eks_managed_node_groups = {
-    initial = {
-      instance_types = ["t3.medium"]
-      min_size     = 1
-      max_size     = 2
-      desired_size = 1
+    gpu = {
+      name           = "gpu-node-group"
+      instance_types = ["g4dn.2xlarge"]
+      min_size      = 2
+      max_size      = 2
+      desired_size  = 2
+
+      labels = {
+        owner       = "data-engineer"
+        instanceType = "gpu"
+      }
+
+      taints = [{
+        key    = "nvidia.com/gpu"
+        value  = "Exists"
+        effect = "NoSchedule"
+      }]
     }
   }
 
@@ -150,7 +162,6 @@ output "ecr_repository_uri" {
 output "ecr_repository_uri_neuron" {
   value = aws_ecr_repository.neuron-ecr.repository_url
 }
-
 # Add Karpenter Helm repository
 resource "helm_release" "karpenter" {
   namespace        = "karpenter"
@@ -189,3 +200,4 @@ module "karpenter_irsa" {
     module.eks.cluster_iam_role_arn
   ]
 }
+
