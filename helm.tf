@@ -17,16 +17,18 @@ resource "helm_release" "deepseek_gpu" {
       - key: "nvidia.com/gpu"
         operator: "Exists"
         effect: "NoSchedule"
+      - key: "karpenter.sh/disrupted"
++       operator: "Exists"
 
     resources:
       limits:
         cpu: "7"
         memory: 32G
-        nvidia.com/gpu: "1"
+        nvidia.com/gpu: "2"
       requests:
         cpu: "7"
         memory: 32G
-        nvidia.com/gpu: "1"
+        nvidia.com/gpu: "2"
 
     command: |
       vllm serve deepseek-ai/DeepSeek-R1-Distill-Qwen-32B --tensor-parallel-size 2 --max-model-len 2048 --gpu-memory-utilization 0.90
