@@ -117,6 +117,7 @@ module "eks" {
     vpc-cni = {
       most_recent = true
       before_compute = true
+      preserve = true
       configuration_values = jsonencode({
         enableNetworkPolicy = "true"
         env = {
@@ -131,13 +132,6 @@ module "eks" {
     kube-proxy = {
       most_recent = true
       before_compute = true
-      configuration_values = jsonencode({
-        logLevel = "5"  # More verbose logging
-        metricsBindAddr = "0.0.0.0:10249"  # Enable metrics
-        env = {
-          ENABLE_DEBUG = "true"
-        }
-      })
     }
   }
 
