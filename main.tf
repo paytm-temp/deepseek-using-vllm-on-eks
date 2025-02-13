@@ -95,26 +95,29 @@ module "vpc" {
 # Use the Terraform EKS module to create an EKS cluster
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.33.1" # Use the latest version available
+  version = "20.33.1"
 
   cluster_name    = local.name
-  cluster_version = "1.31" # Specify the EKS version you want to use
+  cluster_version = "1.31"
 
   cluster_endpoint_public_access           = true
-  enable_irsa                              = true
+  enable_irsa                             = true
   enable_cluster_creator_admin_permissions = true
 
-  # Node groups should be defined separately
-  node_groups = {
+  # Updated node group configuration
+  eks_managed_node_groups = {
     general-purpose = {
-      desired_capacity = 2
-      max_capacity     = 3
-      min_capacity     = 1
+      desired_size = 2
+      max_size     = 3
+      min_size     = 1
 
-      instance_type = "g4dn.2xlarge"   # GPU instances for DeepSeek
+      instance_types = ["g4dn.2xlarge"]   # GPU instances for DeepSeek
+      
+      labels = {
+        role = "general-purpose"
+      }
 
-      # Optional: additional node group configurations
-      additional_tags = local.tags
+      tags = local.tags
     }
   }
 
