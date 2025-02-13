@@ -117,6 +117,13 @@ module "eks" {
   cluster_addons = {
     vpc-cni = {
       most_recent = true
+      before_compute = true
+    }
+    coredns = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
     }
   }
 
