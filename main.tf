@@ -117,7 +117,12 @@ module "eks" {
   cluster_addons = {
     vpc-cni = {
       most_recent = true
-      before_compute = true
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_POD_ENI = "false"  # Disable advanced features
+          AWS_VPC_K8S_CNI_EXTERNALSNAT = "true"  # Help with initialization
+        }
+      })
     }
     coredns = {
       most_recent = true
@@ -146,6 +151,8 @@ module "eks" {
         value  = "Exists"
         effect = "NO_SCHEDULE"
       }]
+
+      ami_type = "AL2_x86_64_GPU"  # AMI with NVIDIA drivers
     }
   }
 
