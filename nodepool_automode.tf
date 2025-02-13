@@ -15,15 +15,14 @@ resource "kubernetes_manifest" "gpu_nodepool" {
           }
         }
         spec = {
-          # Control scaling through provisioner
-          provisioner = {
-            minReplicas = 2
-            maxReplicas = 2
-          }
           nodeClassRef = {
             group = "eks.amazonaws.com"
             kind  = "NodeClass"
             name  = "default"
+          }
+          scaling = {
+            minSize = 2
+            maxSize = 2
           }
           taints = [
             {
