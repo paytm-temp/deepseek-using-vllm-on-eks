@@ -51,11 +51,6 @@ resource "kubernetes_manifest" "gpu_nodepool" {
           ]
         }
       }
-      weight = 1
-      disruption = {
-        consolidateAfter = "30s"
-        expireAfter = "168h"  # 7 days
-      }
     }
   }
 
