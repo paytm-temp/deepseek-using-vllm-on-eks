@@ -63,8 +63,9 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
 
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
@@ -180,6 +181,115 @@ resource "aws_ecr_repository" "chatbot-ecr" {
 resource "aws_ecr_repository" "neuron-ecr" {
   name                 = "${local.name}-neuron-base"
   image_tag_mutability = "MUTABLE"
+}
+
+# Add after the eks module but before the nodepool resources
+module "karpenter" {
+  source  = "terraform-aws-modules/eks/aws//modules/karpenter"
+  version = "20.33.1"
+
+  cluster_name = module.eks.cluster_name
+
+  irsa_oidc_provider_arn = module.eks.oidc_provider_arn
+  irsa_namespace_service_accounts = ["karpenter:karpenter"]
+
+  # Add policies for Karpenter IRSA
+  policies = {
+    AWSLoadBalancerControllerIAMPolicy = aws_iam_policy.karpenter.arn
+  }
+}
+
+resource "aws_iam_policy" "karpenter" {
+  name = "KarpenterControllerPolicy-${local.name}"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateLaunchTemplate",
+          "ec2:CreateFleet",
+          "ec2:RunInstances",
+          "ec2:CreateTags",
+          "iam:PassRole",
+          "ec2:TerminateInstances",
+          "ec2:DescribeLaunchTemplates",
+          "ec2:DescribeInstances",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeInstanceTypes",
+          "ec2:DescribeInstanceTypeOfferings",
+          "ec2:DescribeAvailabilityZones",
+          "ssm:GetParameter"
+        ]
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
+resource "helm_release" "karpenter" {
+  namespace        = "karpenter"
+  create_namespace = true
+
+  name       = "karpenter"
+  repository = "oci://public.ecr.aws/karpenter"
+  chart      = "karpenter"
+  version    = "v0.33.1"
+
+  set {
+    name  = "settings.aws.clusterName"
+    value = module.eks.cluster_name
+  }
+
+  set {
+    name  = "settings.aws.clusterEndpoint"
+    value = module.eks.cluster_endpoint
+  }
+
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.karpenter.irsa_arn
+  }
+
+  depends_on = [
+    module.eks,
+    module.karpenter,
+    time_sleep.wait_for_kubernetes
+  ]
+}
+
+# Add this nodeclass manifest
+resource "kubernetes_manifest" "default_nodeclass" {
+  manifest = {
+    apiVersion = "karpenter.k8s.aws/v1beta1"
+    kind       = "NodeClass"
+    metadata = {
+      name = "default"
+    }
+    spec = {
+      amiFamily = "AL2"
+      role      = module.karpenter.role_name
+      subnetSelectorTerms = [
+        {
+          tags = {
+            "kubernetes.io/role/internal-elb" = "1"
+          }
+        }
+      ]
+      securityGroupSelectorTerms = [
+        {
+          tags = {
+            "kubernetes.io/cluster/${module.eks.cluster_name}" = "owned"
+          }
+        }
+      ]
+    }
+  }
+
+  depends_on = [
+    helm_release.karpenter
+  ]
 }
 
 # Outputs

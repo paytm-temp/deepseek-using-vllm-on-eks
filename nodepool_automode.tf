@@ -5,7 +5,9 @@ resource "kubernetes_manifest" "gpu_nodepool" {
     module.eks,
     time_sleep.wait_for_kubernetes,
     data.aws_eks_cluster.cluster,
-    data.aws_eks_cluster_auth.cluster
+    data.aws_eks_cluster_auth.cluster,
+    helm_release.karpenter,
+    kubernetes_manifest.default_nodeclass
   ]
 
   manifest = {
@@ -79,7 +81,9 @@ resource "kubernetes_manifest" "neuron_nodepool" {
     module.eks,
     time_sleep.wait_for_kubernetes,
     data.aws_eks_cluster.cluster,
-    data.aws_eks_cluster_auth.cluster
+    data.aws_eks_cluster_auth.cluster,
+    helm_release.karpenter,
+    kubernetes_manifest.default_nodeclass
   ]
 
   manifest = {
