@@ -7,6 +7,10 @@ resource "kubernetes_manifest" "gpu_nodepool" {
       name = "gpu-nodepool"
     }
     spec = {
+      scaling = {
+        minSize = 2
+        maxSize = 2
+      }
       template = {
         metadata = {
           labels = {
@@ -19,10 +23,6 @@ resource "kubernetes_manifest" "gpu_nodepool" {
             group = "eks.amazonaws.com"
             kind  = "NodeClass"
             name  = "default"
-          }
-          scaling = {
-            minSize = 2
-            maxSize = 2
           }
           taints = [
             {
