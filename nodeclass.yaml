@@ -1,0 +1,13 @@
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: NodeClass
+metadata:
+  name: default
+spec:
+  amiFamily: AL2
+  instanceProfile: KarpenterNodeInstanceProfile-${cluster_name}
+  securityGroupSelector:
+    karpenter.sh/discovery: ${cluster_name}
+  subnetSelector:
+    karpenter.sh/discovery: ${cluster_name}
+  tags:
+    karpenter.sh/discovery: ${cluster_name} 
