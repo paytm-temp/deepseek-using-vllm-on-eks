@@ -2,7 +2,8 @@ resource "kubernetes_manifest" "gpu_nodepool" {
   count = var.enable_auto_mode_node_pool && var.enable_deep_seek_gpu ? 1 : 0
 
   depends_on = [
-    module.eks
+    module.eks,
+    time_sleep.wait_for_cluster
   ]
 
   manifest = {
@@ -73,7 +74,8 @@ resource "kubernetes_manifest" "neuron_nodepool" {
   count = var.enable_auto_mode_node_pool && var.enable_deep_seek_neuron ? 1 : 0
 
   depends_on = [
-    module.eks
+    module.eks,
+    time_sleep.wait_for_cluster
   ]
 
   manifest = {

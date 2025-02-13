@@ -42,6 +42,9 @@ provider "kubernetes" {
     # This requires the awscli to be installed locally where Terraform is executed
     args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
   }
+  ignore_annotations = [
+    "^karpenter.sh/.*"
+  ]
 }
 
 provider "helm" {
@@ -149,4 +152,32 @@ output "ecr_repository_uri" {
 
 output "ecr_repository_uri_neuron" {
   value = aws_ecr_repository.neuron-ecr.repository_url
+}
+
+# Add this data source to get cluster auth
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_name
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_name
+}
+
+# Add a time delay to ensure cluster is ready
+resource "time_sleep" "wait_for_cluster" {
+  depends_on = [module.eks]
+  create_duration = "30s"
+}
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.9.1"
+    }
+  }
 }
