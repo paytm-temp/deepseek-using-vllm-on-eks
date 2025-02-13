@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/time"
       version = ">= 0.9.1"
     }
+    http = {
+      source  = "hashicorp/http"
+      version = ">= 3.0"
+    }
   }
 }
 
@@ -58,6 +62,10 @@ provider "kubernetes" {
   }
   ignore_annotations = [
     "^karpenter.sh/.*"
+  ]
+
+  depends_on = [
+    data.http.wait_for_cluster
   ]
 }
 
@@ -166,6 +174,16 @@ data "aws_eks_cluster" "cluster" {
 
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_name
+
+  depends_on = [
+    module.eks,
+    time_sleep.wait_for_kubernetes
+  ]
+}
+
+# Add after the time_sleep resource
+data "http" "wait_for_cluster" {
+  url = module.eks.cluster_endpoint
 
   depends_on = [
     module.eks,
@@ -289,7 +307,10 @@ resource "kubernetes_manifest" "default_nodeclass" {
   }
 
   depends_on = [
-    helm_release.karpenter
+    helm_release.karpenter,
+    data.http.wait_for_cluster,
+    data.aws_eks_cluster.cluster,
+    data.aws_eks_cluster_auth.cluster
   ]
 }
 
