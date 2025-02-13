@@ -190,13 +190,14 @@ module "karpenter" {
 
   cluster_name = module.eks.cluster_name
 
-  irsa_oidc_provider_arn = module.eks.oidc_provider_arn
+  irsa_oidc_provider_arn          = module.eks.oidc_provider_arn
   irsa_namespace_service_accounts = ["karpenter:karpenter"]
+}
 
-  # Add policies for Karpenter IRSA
-  policies = {
-    AWSLoadBalancerControllerIAMPolicy = aws_iam_policy.karpenter.arn
-  }
+# Create the IAM role for Karpenter
+resource "aws_iam_role_policy_attachment" "karpenter_policy" {
+  role       = module.karpenter.role_name
+  policy_arn = aws_iam_policy.karpenter.arn
 }
 
 resource "aws_iam_policy" "karpenter" {
