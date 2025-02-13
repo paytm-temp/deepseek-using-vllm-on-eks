@@ -29,6 +29,8 @@ terraform init
 terraform apply -auto-approve
 
 $(terraform output configure_kubectl | jq -r)
+
+aws eks --region <region> update-kubeconfig --name <cluster-name>
 ```
 
 ### Deploy  DeepSeek Model
@@ -49,6 +51,7 @@ You can modify this file to change resource configurations, node selectors, or t
 ``` bash
 # Let's start by just enabling the GPU based option:
 terraform apply -auto-approve -var="enable_deep_seek_gpu=true" -var="enable_auto_mode_node_pool=true"
+
 
 # Check the pods in the 'deepseek' namespace 
 kubectl get po -n deepseek
@@ -188,3 +191,9 @@ In this tab, you'll notice a dropdown menu that lets you switch between Neuron-b
 It is **not** intended for production use. The code provided here is for educational purposes and should not be used in a live environment without proper testing, validation, and modifications.
 
 Use at your own risk. The authors are not responsible for any issues, damages, or losses that may result from using this code in production.
+
+
+**to destroy the cluster**
+```
+terraform destroy
+```

@@ -12,10 +12,12 @@ resource "helm_release" "deepseek_gpu" {
     nodeSelector:
       owner: "data-engineer"
       instanceType: "gpu"
+
     tolerations:
       - key: "nvidia.com/gpu"
         operator: "Exists"
         effect: "NoSchedule"
+
     resources:
       limits:
         cpu: "32"
@@ -25,7 +27,9 @@ resource "helm_release" "deepseek_gpu" {
         cpu: "16"
         memory: 30G
         nvidia.com/gpu: "1"
-    command: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048"
+
+    command: |
+      vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048
     EOT
   ]
   depends_on = [module.eks, kubernetes_manifest.gpu_nodepool]
