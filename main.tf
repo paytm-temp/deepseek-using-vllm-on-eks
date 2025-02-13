@@ -113,46 +113,15 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  # Enable VPC CNI addon
   cluster_addons = {
     vpc-cni = {
       most_recent = true
-      configuration_values = jsonencode({
-        env = {
-          ENABLE_POD_ENI = "false"  # Disable advanced features
-          AWS_VPC_K8S_CNI_EXTERNALSNAT = "true"  # Help with initialization
-        }
-      })
     }
     coredns = {
       most_recent = true
     }
     kube-proxy = {
       most_recent = true
-    }
-  }
-
-  # Add managed node group for GPU workloads
-  eks_managed_node_groups = {
-    gpu = {
-      name           = "gpu-node-group"
-      instance_types = ["g4dn.2xlarge"]
-      min_size      = 2
-      max_size      = 2
-      desired_size  = 2
-
-      labels = {
-        owner       = "data-engineer"
-        instanceType = "gpu"
-      }
-
-      taints = [{
-        key    = "nvidia.com/gpu"
-        value  = "Exists"
-        effect = "NO_SCHEDULE"
-      }]
-
-      ami_type = "AL2_x86_64_GPU"  # AMI with NVIDIA drivers
     }
   }
 
