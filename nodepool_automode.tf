@@ -15,10 +15,17 @@ resource "kubernetes_manifest" "gpu_nodepool" {
           }
         }
         spec = {
-          resourceLimits = {
-            "cpu" = "16"
-            "memory" = "64Gi"
-            "nvidia.com/gpu" = "2"
+          resources = {
+            requests = {
+              "cpu" = "16"
+              "memory" = "64Gi"
+              "nvidia.com/gpu" = "2"
+            }
+            limits = {
+              "cpu" = "16"
+              "memory" = "64Gi"
+              "nvidia.com/gpu" = "2"
+            }
           }
           startupTaints = [
             {
