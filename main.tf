@@ -107,7 +107,7 @@ module "eks" {
 
   cluster_compute_config = {
     enabled    = true
-    node_pools = ["general-purpose"]
+    node_pools = []
   }
 
   vpc_id     = module.vpc.vpc_id
@@ -116,22 +116,12 @@ module "eks" {
   cluster_addons = {
     vpc-cni = {
       most_recent = true
-      before_compute = true
-      preserve = true
-      configuration_values = jsonencode({
-        enableNetworkPolicy = "true"
-        env = {
-          ADDITIONAL_ENI_TAGS = "{\"cluster\": \"eks-automode\"}"
-          AWS_VPC_K8S_CNI_LOGLEVEL = "DEBUG"
-        }
-      })
     }
     coredns = {
       most_recent = true
     }
     kube-proxy = {
       most_recent = true
-      before_compute = true
     }
   }
 
