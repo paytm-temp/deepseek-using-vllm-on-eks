@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-config
+data:
+  config.yaml: |
+    model_list:
+      - model_name: gpt-3.5-turbo
+        litellm_params:
+          model: local-model  # Your self-deployed model
+          api_base: "http://localhost:8000/v1"  # Replace with your model's service
+          api_key: ""  # No need for API key for local deployment
+    
+    general_settings: 
+      master_key: "sk-testing-llm-model-with-apikeys-locally-in-aws-using-deepseek"  # Master key for admin operations
+      # database_url will be provided via environment variable
+    
+    router_settings:
+      num_retries: 3
+      timeout: 30
+      routing_strategy: "simple-shuffle"
+    
+    environment_variables:
+      # Add any environment variables needed for your setup
+      LITELLM_PORT: "8080"
+      
+    authentication:
+      api_key_auth: true
+      verify_key: true
+      allow_dynamic_key_generation: true
+      max_keys_per_user: 5 

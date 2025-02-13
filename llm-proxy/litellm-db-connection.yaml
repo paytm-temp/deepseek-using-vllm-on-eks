@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: litellm-db-connection
+type: Opaque
+data:
+  # Base64 encoded values
+  DATABASE_URL: cG9zdGdyZXNxbDovL3Bvc3RncmVzOnBvc3RncmVzQGxpdGVsbG0tZGI6NTQzMi9saXRlbGxt  # postgresql://postgres:postgres@litellm-db:5432/litellm
+  POSTGRES_USER: cG9zdGdyZXM=  # postgres
+  POSTGRES_PASSWORD: cG9zdGdyZXM=  # postgres
+  POSTGRES_DB: bGl0ZWxsbQ==  # litellm 

@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: litellm-db-secret
+type: Opaque
+data:
+  POSTGRES_PASSWORD: cG9zdGdyZXM=  # 'postgres' in base64
+  POSTGRES_USER: cG9zdGdyZXM=      # 'postgres' in base64
+  POSTGRES_DB: bGl0ZWxsbQ==        # 'litellm' in base64
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: litellm-db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litellm-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: litellm-db
+  template:
+    metadata:
+      labels:
+        app: litellm-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15.3
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: litellm-db-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: litellm-db-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: litellm-db-secret
+              key: POSTGRES_DB
+        volumeMounts:
+        - name: litellm-db-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: litellm-db-storage
+        persistentVolumeClaim:
+          claimName: litellm-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: litellm-db
+spec:
+  selector:
+    app: litellm-db
+  ports:
+  - port: 5432
+    targetPort: 5432 
