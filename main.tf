@@ -130,7 +130,7 @@ module "eks" {
       taints = [{
         key    = "nvidia.com/gpu"
         value  = "Exists"
-        effect = "NoSchedule"
+        effect = "NO_SCHEDULE"
       }]
     }
   }
@@ -163,41 +163,41 @@ output "ecr_repository_uri_neuron" {
   value = aws_ecr_repository.neuron-ecr.repository_url
 }
 # Add Karpenter Helm repository
-resource "helm_release" "karpenter" {
-  namespace        = "karpenter"
-  create_namespace = true
-  name            = "karpenter"
-  repository      = "oci://public.ecr.aws/karpenter"
-  chart           = "karpenter"
-  version         = "v0.33.0"
+# resource "helm_release" "karpenter" {
+#   namespace        = "karpenter"
+#   create_namespace = true
+#   name            = "karpenter"
+#   repository      = "oci://public.ecr.aws/karpenter"
+#   chart           = "karpenter"
+#   version         = "v0.33.0"
 
-  set {
-    name  = "settings.aws.clusterName"
-    value = module.eks.cluster_name
-  }
+#   set {
+#     name  = "settings.aws.clusterName"
+#     value = module.eks.cluster_name
+#   }
 
-  set {
-    name  = "settings.aws.clusterEndpoint"
-    value = module.eks.cluster_endpoint
-  }
+#   set {
+#     name  = "settings.aws.clusterEndpoint"
+#     value = module.eks.cluster_endpoint
+#   }
 
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.karpenter_irsa.iam_role_arn
-  }
-}
+#   set {
+#     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+#     value = module.karpenter_irsa.iam_role_arn
+#   }
+# }
 
-# Add IAM role for Karpenter
-module "karpenter_irsa" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~> 5.20"
+# # Add IAM role for Karpenter
+# module "karpenter_irsa" {
+#   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+#   version = "~> 5.20"
 
-  role_name                          = "karpenter-controller-${module.eks.cluster_name}"
-  attach_karpenter_controller_policy = true
+#   role_name                          = "karpenter-controller-${module.eks.cluster_name}"
+#   attach_karpenter_controller_policy = true
 
-  karpenter_controller_cluster_id = module.eks.cluster_name
-  karpenter_controller_node_iam_role_arns = [
-    module.eks.cluster_iam_role_arn
-  ]
-}
+#   karpenter_controller_cluster_id = module.eks.cluster_name
+#   karpenter_controller_node_iam_role_arns = [
+#     module.eks.cluster_iam_role_arn
+#   ]
+# }
 
