@@ -7,10 +7,6 @@ resource "kubernetes_manifest" "gpu_nodepool" {
       name = "gpu-nodepool"
     }
     spec = {
-      scaling = {
-        minSize = 2
-        maxSize = 2
-      }
       template = {
         metadata = {
           labels = {
@@ -19,18 +15,18 @@ resource "kubernetes_manifest" "gpu_nodepool" {
           }
         }
         spec = {
-          nodeClassRef = {
-            group = "eks.amazonaws.com"
-            kind  = "NodeClass"
-            name  = "default"
-          }
-          taints = [
+          startupTaints = [
             {
               key    = "nvidia.com/gpu"
               value  = "Exists"
               effect = "NoSchedule"
             }
           ]
+          nodeClassRef = {
+            group = "eks.amazonaws.com"
+            kind  = "NodeClass"
+            name  = "default"
+          }
           requirements = [
             {
               key      = "eks.amazonaws.com/instance-family"
@@ -55,9 +51,10 @@ resource "kubernetes_manifest" "gpu_nodepool" {
           ]
         }
       }
-      limits = {
-        cpu    = "16"    # Total CPU for 2 nodes (8 CPU each)
-        memory = "64Gi"  # Total memory for 2 nodes (32Gi each)
+      weight = 1
+      disruption = {
+        consolidateAfter = "30s"
+        expireAfter = "168h"  # 7 days
       }
     }
   }
