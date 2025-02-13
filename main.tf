@@ -116,12 +116,28 @@ module "eks" {
   cluster_addons = {
     vpc-cni = {
       most_recent = true
+      before_compute = true
+      configuration_values = jsonencode({
+        enableNetworkPolicy = "true"
+        env = {
+          ADDITIONAL_ENI_TAGS = "{\"cluster\": \"eks-automode\"}"
+          AWS_VPC_K8S_CNI_LOGLEVEL = "DEBUG"
+        }
+      })
     }
     coredns = {
       most_recent = true
     }
     kube-proxy = {
       most_recent = true
+      before_compute = true
+      configuration_values = jsonencode({
+        logLevel = "5"  # More verbose logging
+        metricsBindAddr = "0.0.0.0:10249"  # Enable metrics
+        env = {
+          ENABLE_DEBUG = "true"
+        }
+      })
     }
   }
 
