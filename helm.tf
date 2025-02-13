@@ -20,16 +20,16 @@ resource "helm_release" "deepseek_gpu" {
 
     resources:
       limits:
-        cpu: "32"
-        memory: 100G
+        cpu: "8"
+        memory: 32G
         nvidia.com/gpu: "1"
       requests:
-        cpu: "16"
-        memory: 30G
+        cpu: "8"
+        memory: 32G
         nvidia.com/gpu: "1"
 
     command: |
-      vllm serve deepseek-ai/DeepSeek-R1-Distill-Llama-8B --max_model 2048
+      vllm serve deepseek-ai/DeepSeek-R1-Distill-Qwen-32B --tensor-parallel-size 2 --max-model-len 2048 --gpu-memory-utilization 0.90
     EOT
   ]
   depends_on = [module.eks, kubernetes_manifest.gpu_nodepool]
