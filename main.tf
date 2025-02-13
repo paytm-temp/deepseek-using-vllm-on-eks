@@ -104,27 +104,22 @@ module "eks" {
   enable_irsa                              = true
   enable_cluster_creator_admin_permissions = true
 
-  cluster_compute_config = {
-    enabled    = true
-    node_pools = ["general-purpose"]
+  # Node groups should be defined separately
+  node_groups = {
+    general-purpose = {
+      desired_capacity = 2
+      max_capacity     = 3
+      min_capacity     = 1
+
+      instance_type = "g4dn.2xlarge"   # GPU instances for DeepSeek
+
+      # Optional: additional node group configurations
+      additional_tags = local.tags
+    }
   }
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
-
-  node_groups = {
-    eks_nodes = {
-      desired_capacity = 2  # Reduced to 2 nodes
-      max_capacity     = 2  # Max capacity set to 2
-      min_capacity     = 2  # Min capacity set to 2
-
-      instance_type = "g4dn.2xlarge"  # Using g4dn.2xlarge (32GB RAM, 8 vCPUs, GPU support)
-      
-      subnet_ids = module.vpc.private_subnets
-
-      tags = local.tags
-    }
-  }
 
   tags = local.tags
 }
