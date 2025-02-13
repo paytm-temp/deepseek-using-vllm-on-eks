@@ -7,12 +7,10 @@ resource "kubernetes_manifest" "gpu_nodepool" {
       name = "gpu-nodepool"
     }
     spec = {
-      resources = {
-        limits = {
-          "cpu" = "16"
-          "memory" = "64Gi"
-          "nvidia.com/gpu" = "2"
-        }
+      limits = {
+        "cpu" = "16"
+        "memory" = "64Gi"
+        "nvidia.com/gpu" = "2"
       }
       template = {
         metadata = {
