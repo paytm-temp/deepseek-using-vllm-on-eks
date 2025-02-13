@@ -113,6 +113,16 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
+  # Add managed node group for Karpenter
+  eks_managed_node_groups = {
+    initial = {
+      instance_types = ["t3.medium"]
+      min_size     = 1
+      max_size     = 2
+      desired_size = 1
+    }
+  }
+
   tags = local.tags
 }
 
@@ -176,6 +186,6 @@ module "karpenter_irsa" {
 
   karpenter_controller_cluster_id = module.eks.cluster_name
   karpenter_controller_node_iam_role_arns = [
-    module.eks.eks_managed_node_groups["initial"].iam_role_arn
+    module.eks.cluster_iam_role_arn
   ]
 }
