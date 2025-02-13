@@ -12,6 +12,10 @@ terraform {
       source  = "hashicorp/http"
       version = ">= 3.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.0"
+    }
   }
 }
 
@@ -62,10 +66,6 @@ provider "kubernetes" {
   }
   ignore_annotations = [
     "^karpenter.sh/.*"
-  ]
-
-  depends_on = [
-    data.http.wait_for_cluster
   ]
 }
 
@@ -310,7 +310,8 @@ resource "kubernetes_manifest" "default_nodeclass" {
     helm_release.karpenter,
     data.http.wait_for_cluster,
     data.aws_eks_cluster.cluster,
-    data.aws_eks_cluster_auth.cluster
+    data.aws_eks_cluster_auth.cluster,
+    null_resource.wait_for_cluster
   ]
 }
 
@@ -326,5 +327,14 @@ output "ecr_repository_uri" {
 
 output "ecr_repository_uri_neuron" {
   value = aws_ecr_repository.neuron-ecr.repository_url
+}
+
+# Add this null resource to enforce ordering
+resource "null_resource" "wait_for_cluster" {
+  depends_on = [
+    module.eks,
+    time_sleep.wait_for_kubernetes,
+    data.http.wait_for_cluster
+  ]
 }
 
