@@ -196,7 +196,7 @@ module "karpenter" {
 
 # Create the IAM role for Karpenter
 resource "aws_iam_role_policy_attachment" "karpenter_policy" {
-  role       = module.karpenter.role_name
+  role       = module.karpenter.iam_role_name
   policy_arn = aws_iam_policy.karpenter.arn
 }
 
@@ -250,7 +250,7 @@ resource "helm_release" "karpenter" {
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.karpenter.irsa_arn
+    value = module.karpenter.iam_role_arn
   }
 
   depends_on = [
@@ -270,7 +270,7 @@ resource "kubernetes_manifest" "default_nodeclass" {
     }
     spec = {
       amiFamily = "AL2"
-      role      = module.karpenter.role_name
+      role      = module.karpenter.iam_role_name
       subnetSelectorTerms = [
         {
           tags = {
