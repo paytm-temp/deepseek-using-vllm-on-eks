@@ -36,12 +36,7 @@ resource "kubernetes_manifest" "gpu_nodepool" {
             {
               key      = "eks.amazonaws.com/instance-family"
               operator = "In"
-              values   = ["g4dn"]
-            },
-            {
-              key      = "eks.amazonaws.com/instance-size"
-              operator = "In"
-              values   = ["2xlarge","4xlarge"]
+              values   = ["g4dn", "g5", "g6","g5g"]
             },
             {
               key      = "kubernetes.io/arch"
