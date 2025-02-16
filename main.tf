@@ -1,7 +1,7 @@
 variable "enable_deep_seek_gpu" {
   description = "Enable DeepSeek using GPUs"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_deep_seek_neuron" {
@@ -33,15 +33,9 @@ provider "aws" {
   region = local.region # Change to your desired region
 }
 
-# Add this data source to get EKS cluster auth
-data "aws_eks_cluster_auth" "this" {
-  name = module.eks.cluster_name
-}
-
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.this.token
 
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
@@ -139,7 +133,6 @@ module "eks" {
   tags = local.tags
 }
 
-
 resource "aws_ecr_repository" "chatbot-ecr" {
   name                 = "${local.name}-chatbot"
   image_tag_mutability = "MUTABLE"
@@ -163,4 +156,3 @@ output "ecr_repository_uri" {
 output "ecr_repository_uri_neuron" {
   value = aws_ecr_repository.neuron-ecr.repository_url
 }
-

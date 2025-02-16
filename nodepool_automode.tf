@@ -8,13 +8,9 @@ resource "kubernetes_manifest" "gpu_nodepool" {
     }
     spec = {
       limits = {
-        "cpu" = "16"         # Total CPU for 2 nodes (8 * 2)
-        "memory" = "64Gi"    # Total memory for 2 nodes (32 * 2)
-        "nvidia.com/gpu" = "2"  # Total GPUs needed (1 * 2)
-      }
-      disruption = {
-        consolidationPolicy = "WhenEmpty"
-        consolidateAfter   = "30s"
+        "cpu" = "16"
+        "memory" = "64Gi"
+        "nvidia.com/gpu" = "2"
       }
       template = {
         metadata = {
@@ -56,6 +52,11 @@ resource "kubernetes_manifest" "gpu_nodepool" {
               key      = "karpenter.sh/capacity-type"
               operator = "In"
               values   = ["on-demand"]
+            },
+            {
+              key      = "node.kubernetes.io/instance-type"
+              operator = "In"
+              values   = ["g4dn.2xlarge"]
             }
           ]
         }
