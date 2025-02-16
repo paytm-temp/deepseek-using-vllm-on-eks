@@ -41,7 +41,7 @@ resource "kubernetes_manifest" "gpu_nodepool" {
             {
               key      = "eks.amazonaws.com/instance-size"
               operator = "In"
-              values   = ["2xlarge"]    # Specifically g4dn.2xlarge
+              values   = ["2xlarge","4xlarge"]
             },
             {
               key      = "kubernetes.io/arch"
@@ -52,11 +52,6 @@ resource "kubernetes_manifest" "gpu_nodepool" {
               key      = "karpenter.sh/capacity-type"
               operator = "In"
               values   = ["on-demand"]
-            },
-            {
-              key      = "node.kubernetes.io/instance-type"
-              operator = "In"
-              values   = ["g4dn.2xlarge"]
             }
           ]
         }
