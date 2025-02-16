@@ -22,13 +22,13 @@ command: "vllm serve __MODEL_NAME_AND_PARAMETERS__"
 
 resources:
   limits:
-    cpu: "8"       # Per node
-    memory: "32G"  # Per node
-    nvidia.com/gpu: 1
+    cpu: "6"
+    memory: 32G
+    nvidia.com/gpu: 2
   requests:
-    cpu: "8"
-    memory: "32G"
-    nvidia.com/gpu: 1
+    cpu: "6"
+    memory: 32G
+    nvidia.com/gpu: 2
 
 service:
   type: ClusterIP
