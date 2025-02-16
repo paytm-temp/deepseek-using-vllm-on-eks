@@ -16,7 +16,6 @@ resource "helm_release" "deepseek_gpu" {
     tolerations:
       - key: "nvidia.com/gpu"
         operator: "Exists"
-        value: "Exists" 
         effect: "NoSchedule"
       - key: "karpenter.sh/disrupted"
 +       operator: "Exists"
