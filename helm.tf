@@ -22,11 +22,11 @@ resource "helm_release" "deepseek_gpu" {
 
     resources:
       limits:
-        cpu: "7"
+        cpu: "6"
         memory: 32G
         nvidia.com/gpu: "2"
       requests:
-        cpu: "7"
+        cpu: "6"
         memory: 32G
         nvidia.com/gpu: "2"
 
