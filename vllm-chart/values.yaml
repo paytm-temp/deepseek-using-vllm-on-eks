@@ -22,11 +22,11 @@ command: "vllm serve __MODEL_NAME_AND_PARAMETERS__"
 
 resources:
   limits:
-    cpu: "6"
+    cpu: "4"
     memory: 32G
     nvidia.com/gpu: 2
   requests:
-    cpu: "6"
+    cpu: "4"
     memory: 32G
     nvidia.com/gpu: 2
 
