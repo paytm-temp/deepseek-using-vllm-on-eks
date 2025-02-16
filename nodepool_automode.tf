@@ -8,7 +8,7 @@ resource "kubernetes_manifest" "gpu_nodepool" {
     }
     spec = {
       limits = {
-        "cpu" = "7"     # One g4dn.2xlarge CPU
+        "cpu" = "8"     # Full g4dn.2xlarge CPU
         "memory" = "32Gi"  # One g4dn.2xlarge memory
         "nvidia.com/gpu" = "1"  # One GPU
       }
