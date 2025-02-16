@@ -7,6 +7,10 @@ resource "kubernetes_manifest" "gpu_nodepool" {
       name = "gpu-nodepool"
     }
     spec = {
+      disruption = {
+        consolidationPolicy = "WhenUnderutilized"
+        expireAfter = "168h"  # 7 days
+      }
       limits = {
         "cpu" = "8"     # Full g4dn.2xlarge CPU
         "memory" = "32Gi"  # One g4dn.2xlarge memory
