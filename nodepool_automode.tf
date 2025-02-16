@@ -8,9 +8,9 @@ resource "kubernetes_manifest" "gpu_nodepool" {
     }
     spec = {
       limits = {
-        "cpu" = "8"     # Full g4dn.2xlarge CPU
-        "memory" = "32Gi"  # One g4dn.2xlarge memory
-        "nvidia.com/gpu" = "1"  # One GPU
+        "cpu" = "16"    # Allow larger instances
+        "memory" = "32Gi"
+        "nvidia.com/gpu" = "1"
       }
       template = {
         metadata = {
@@ -36,7 +36,7 @@ resource "kubernetes_manifest" "gpu_nodepool" {
             {
               key      = "eks.amazonaws.com/instance-family"
               operator = "In"
-              values   = ["g4dn", "g5", "g6","g5g"]
+              values   = ["g4dn", "g5", "g6", "g5g"]
             },
             {
               key      = "kubernetes.io/arch"
