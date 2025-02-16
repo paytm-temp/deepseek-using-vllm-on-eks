@@ -24,11 +24,11 @@ resource "helm_release" "deepseek_gpu" {
       limits:
         cpu: "4"
         memory: 32G
-        nvidia.com/gpu: "2"
+        nvidia.com/gpu: "1"
       requests:
         cpu: "4"
         memory: 32G
-        nvidia.com/gpu: "2"
+        nvidia.com/gpu: "1"
 
     command: |
       vllm serve deepseek-ai/DeepSeek-R1-Distill-Qwen-32B --tensor-parallel-size 2 --max-model-len 2048 --gpu-memory-utilization 0.90
