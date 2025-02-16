@@ -1,5 +1,5 @@
 namespace: deepseek
-replicaCount: 2
+replicaCount: 1
 
 containerPort: 8000
 
@@ -22,11 +22,11 @@ command: "vllm serve __MODEL_NAME_AND_PARAMETERS__"
 
 resources:
   limits:
-    cpu: "4"
+    cpu: "3"
     memory: 32G
     nvidia.com/gpu: 1
   requests:
-    cpu: "4"
+    cpu: "3"
     memory: 32G
     nvidia.com/gpu: 1
 
