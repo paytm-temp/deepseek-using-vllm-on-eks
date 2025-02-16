@@ -8,7 +8,9 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
 
-nodeSelector: {}
+nodeSelector:
+  instanceType: gpu
+  owner: data-engineer
 
 tolerations: []
 
